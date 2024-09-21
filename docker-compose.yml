@@ -1,0 +1,40 @@
+version: '3'  # Version of Docker Compose syntax
+
+services:
+  web:  # Web application service
+    build: 
+      context: ./web  # Path to the 'web' app Dockerfile
+      dockerfile: Dockerfile  # Dockerfile to build the web app
+    ports:
+      - "3000:3000"  # Map port 3000 on the host to port 3000 in the container
+    volumes:
+      - ./web:/app  # Mount the web directory from the host to /app inside the container
+    environment:
+      PORT: ${WEB_PORT}  # Environment variable for the web app's port (defined in a .env file)
+      API_HOST: "http://api:4000"  # Environment variable for the API service URL
+
+  api:  # API service
+    build:
+      context: ./api  # Path to the 'api' app Dockerfile
+      dockerfile: Dockerfile  # Dockerfile to build the API app
+    ports:
+      - "4000:4000"  # Map port 4000 on the host to port 4000 in the container
+    volumes:
+      - ./api:/app  # Mount the api directory from the host to /app inside the container
+    environment:
+      PORT: ${API_PORT}  # Environment variable for the API app's port (defined in a .env file)
+      DB: ${DB}  # Environment variable for the database connection
+
+  postgres:  # PostgreSQL database service
+    image: postgres:latest  # Use the latest PostgreSQL image
+    environment:
+      POSTGRES_USER: postgres  # Default PostgreSQL username
+      POSTGRES_PASSWORD: 12345678  # PostgreSQL password
+      POSTGRES_DB: demo  # Default database name
+    ports:
+      - "5432:5432"  # Expose PostgreSQL on port 5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # Mount a volume to persist database data
+
+volumes:
+  pgdata:  # Named volume for PostgreSQL data persistence
